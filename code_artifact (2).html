@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitra | منصة كترا للأقوال والإلهام الرقمي</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            900: '#3b0764',
+                            dark: '#0B0714',
+                            card: '#150E28'
+                        }
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #0B0714;
+            color: #F3F4F6;
+            overflow-x: hidden;
+        }
+
+        /* Ambient Glow & Glassmorphism */
+        .glass-panel {
+            background: rgba(21, 14, 40, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-card {
+            background: rgba(26, 17, 50, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(139, 92, 246, 0.15);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(167, 139, 250, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px -10px rgba(124, 58, 237, 0.3);
+        }
+
+        .glow-btn {
+            background: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%);
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .glow-btn:hover {
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.7);
+            transform: scale(1.02);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B0714;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2e1065;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6d28d9;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-purple-600 selection:text-white">
+
+    <!-- Ambient Glowing Background Lights -->
+    <div class="fixed top-0 right-1/4 w-96 h-96 bg-purple-900/30 rounded-full blur-[128px] pointer-events-none z-0"></div>
+    <div class="fixed bottom-10 left-10 w-96 h-96 bg-indigo-900/20 rounded-full blur-[128px] pointer-events-none z-0"></div>
+
+    <!-- MAIN CONTAINER -->
+    <div class="relative z-10 flex flex-col min-h-screen">
+        
+        <!-- 1. NAVIGATION BAR -->
+        <header class="sticky top-0 z-40 w-full glass-panel border-b border-white/10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+                
+                <!-- Logo & Brand Identity -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-400 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                        <i class="fa-solid fa-quote-right text-white text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-200 to-purple-400">
+                        Kitra <span class="text-xs text-purple-400 font-normal px-2 py-0.5 rounded-full border border-purple-500/30">كترا</span>
+                    </span>
+                </div>
+
+                <!-- Nav Links (Desktop) -->
+                <nav class="hidden md:flex items-center gap-8 font-semibold text-gray-300">
+                    <button onclick="switchTab('home')" id="nav-home" class="transition-colors hover:text-purple-400 text-purple-400 flex items-center gap-2">
+                        <i class="fa-solid fa-house text-sm"></i> الرئيسـية
+                    </button>
+                    <button onclick="switchTab('explore')" id="nav-explore" class="transition-colors hover:text-purple-400 flex items-center gap-2">
+                        <i class="fa-solid fa-compass text-sm"></i> استكشف الأقوال
+                    </button>
+                    <button onclick="openModal('addQuoteModal')" class="transition-colors hover:text-purple-400 flex items-center gap-2">
+                        <i class="fa-solid fa-sparkles text-sm"></i> جديد
+                    </button>
+                </nav>
+
+                <!-- User Profile & Auth Simulation Switcher -->
+                <div class="flex items-center gap-4">
+                    <!-- Guest View Buttons -->
+                    <div id="guest-nav-controls" class="flex items-center gap-3">
+                        <button onclick="openAuthModal('login')" class="text-sm font-bold text-gray-300 hover:text-white px-4 py-2 rounded-xl transition-all">
+                            تسجيل الدخول
+                        </button>
+                        <button onclick="openAuthModal('signup')" class="glow-btn text-sm font-bold text-white px-5 py-2.5 rounded-xl flex items-center gap-2">
+                            <i class="fa-solid fa-user-plus text-xs"></i> حساب جديد
+                        </button>
+                    </div>
+
+                    <!-- Logged In User View (Simulated) -->
+                    <div id="user-nav-controls" class="hidden items-center gap-3">
+                        <div class="flex items-center gap-3 pl-3 border-l border-white/10">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 flex items-center justify-center font-bold text-white shadow-md">
+                                م
+                            </div>
+                            <div class="hidden sm:block text-right">
+                                <div class="text-sm font-bold text-white leading-tight">المعنى في فضاء رقمي</div>
+                                <div class="text-xs text-purple-400">تطبيق كترا المباشر</div>
+                            </div>
+                        </div>
+                        <button onclick="toggleUserAuth(false)" title="تسجيل الخروج" class="w-9 h-9 rounded-lg bg-white/5 hover:bg-red-500/20 hover:text-red-400 text-gray-400 flex items-center justify-center transition-all">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            
+            <!-- 2. HERO SECTION -->
+            <section class="relative my-6 rounded-3xl p-8 sm:p-12 glass-panel border border-purple-500/20 overflow-hidden text-center sm:text-right">
+                <div class="absolute -left-10 -bottom-10 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="relative z-10 max-w-3xl">
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-semibold mb-6">
+                        <i class="fa-solid fa-bolt text-purple-400"></i> الإلـهام البرمجي والأدبي بين يديك
+                    </div>
+                    <h1 class="text-3xl sm:text-5xl font-black text-white leading-tight tracking-wide mb-4">
+                        منصة <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-indigo-300 to-purple-200">كترا (Kitra)</span> | المعنى في فضاء رقمي
+                    </h1>
+                    <p class="text-gray-300 text-base sm:text-lg mb-8 leading-relaxed font-normal">
+                        مساحة تجمع بين فلسفة الكود وأسرار كتاب "خلف الأزرار"، وقسم خاص للكتابات الأدبية العامة الملهِمَة.
+                    </p>
+                    
+                    <div class="flex flex-wrap items-center justify-center sm:justify-start gap-4">
+                        <button onclick="openModal('addQuoteModal')" class="glow-btn px-6 py-3.5 rounded-xl font-bold text-white flex items-center gap-2 text-base">
+                            <i class="fa-solid fa-plus-circle text-lg"></i> شارك اقتباساً جديداً
+                        </button>
+                        <button onclick="filterQuotes('all')" class="px-6 py-3.5 rounded-xl font-semibold bg-white/5 hover:bg-white/10 border border-white/10 text-gray-200 transition-all">
+                            تصفح الكل
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CATEGORY FILTER BAR -->
+            <div class="flex items-center justify-between gap-4 my-8 overflow-x-auto pb-2">
+                <div class="flex items-center gap-2">
+                    <button onclick="filterCategory('all', this)" class="category-btn active bg-purple-600 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all">
+                        الكل
+                    </button>
+                    <button onclick="filterCategory('behind_the_buttons', this)" class="category-btn bg-white/5 hover:bg-white/10 border border-purple-500/30 text-purple-300 px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-purple-900/20">
+                        📖 كتاب: خلف الأزرار
+                    </button>
+                    <button onclick="filterCategory('literature', this)" class="category-btn bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 px-4 py-2 rounded-xl text-sm font-semibold transition-all">
+                        📜 كتابات أدبية عامة
+                    </button>
+                    <button onclick="filterCategory('tech', this)" class="category-btn bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 px-4 py-2 rounded-xl text-sm font-semibold transition-all">
+                        💻 برمجة وتقنية
+                    </button>
+                </div>
+                
+                <div class="text-xs text-gray-400 hidden sm:block">
+                    إجمالي الاقتباسات: <span id="total-quotes-count" class="font-bold text-purple-400">0</span>
+                </div>
+            </div>
+
+            <!-- 4. QUOTES GRID DISPLAY -->
+            <section id="quotes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Quotes dynamically generated here via JS -->
+            </section>
+
+            <!-- EMPTY STATE NOTICE -->
+            <div id="empty-state" class="hidden text-center py-16 glass-panel rounded-3xl border border-white/10 my-8">
+                <i class="fa-solid fa-quote-left text-5xl text-purple-500/30 mb-4"></i>
+                <h3 class="text-xl font-bold text-white mb-2">لا توجد اقتباسات في هذا التصنيف حالياً</h3>
+                <p class="text-gray-400 text-sm mb-6">كن أول من يشارك اقتباساً ملهماً في هذا القسم!</p>
+                <button onclick="openModal('addQuoteModal')" class="glow-btn px-5 py-2.5 rounded-xl font-bold text-white text-sm">
+                    إضافة اقتباس
+                </button>
+            </div>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="glass-panel border-t border-white/10 py-6 mt-16">
+            <div class="max-w-7xl mx-auto px-4 text-center text-gray-400 text-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-2">
+                    <span class="font-bold text-white">Kitra © 2026</span> - تم التطوير بحب وشغف للملكة المهندسة تلتول 👑
+                </div>
+                <div class="flex items-center gap-4 text-xs">
+                    <a href="#" class="hover:text-purple-400">الشروط والأحكام</a>
+                    <a href="#" class="hover:text-purple-400">سياسة الخصوصية</a>
+                    <a href="#" class="hover:text-purple-400">الدعم الفني</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 3. INTERACTIVE MODAL: ADD NEW QUOTE -->
+    <div id="addQuoteModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md hidden opacity-0 transition-opacity duration-300">
+        <div class="glass-panel max-w-lg w-full rounded-3xl p-6 sm:p-8 border border-purple-500/30 shadow-2xl relative transform scale-95 transition-transform duration-300" id="addQuoteModalCard">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-purple-600/30 border border-purple-500/40 flex items-center justify-center text-purple-300">
+                        <i class="fa-solid fa-pen-nib"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">إضافة اقتباس جديد</h3>
+                        <p class="text-xs text-gray-400">انشر إلهامك ليظهر فوراً في منصة كترا</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('addQuoteModal')" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-all">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Form -->
+            <form id="addQuoteForm" onsubmit="handleQuoteSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-2">نص الاقتباس *</label>
+                    <textarea id="quoteText" required minlength="5" rows="4" placeholder="اكتب الاقتباس الملهِم هنا..." class="w-full bg-slate-900/80 border border-purple-500/30 rounded-xl p-3.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-2">قائل الاقتباس / المصدر</label>
+                        <input type="text" id="quoteAuthor" placeholder="مثال: المعنى في فضاء رقمي أو اسم الكتاب" class="w-full bg-slate-900/80 border border-purple-500/30 rounded-xl p-3 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-purple-500 transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-2">التصنيف</label>
+                        <select id="quoteCategory" class="w-full bg-slate-900/80 border border-purple-500/30 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-purple-500 transition-all">
+                            <option value="behind_the_buttons">📖 كتاب: خلف الأزرار</option>
+                            <option value="literature">📜 كتابات أدبية عامة</option>
+                            <option value="tech">💻 برمجة وتقنية</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+                    <button type="button" onclick="closeModal('addQuoteModal')" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-300 hover:bg-white/5 transition-all">
+                        إلغاء
+                    </button>
+                    <button type="submit" class="glow-btn px-6 py-2.5 rounded-xl text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> نشر الان
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 5. AUTHENTICATION MODAL (LOGIN / SIGNUP) -->
+    <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md hidden opacity-0 transition-opacity duration-300">
+        <div class="glass-panel max-w-md w-full rounded-3xl p-6 sm:p-8 border border-purple-500/30 shadow-2xl relative" id="authModalCard">
+            <!-- Modal Close -->
+            <button onclick="closeModal('authModal')" class="absolute top-5 left-5 w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Header Toggle -->
+            <div class="flex items-center justify-center gap-4 mb-6 border-b border-white/10 pb-4">
+                <button id="auth-tab-login" onclick="switchAuthTab('login')" class="text-lg font-bold text-purple-400 border-b-2 border-purple-500 pb-1 transition-all">
+                    تسجيل الدخول
+                </button>
+                <button id="auth-tab-signup" onclick="switchAuthTab('signup')" class="text-lg font-bold text-gray-400 hover:text-white pb-1 transition-all">
+                    حساب جديد
+                </button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleAuthSubmit(event, 'login')" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">البريد الإلكتروني</label>
+                    <input type="email" required placeholder="name@example.com" class="w-full bg-slate-900/80 border border-white/15 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">كلمة المرور</label>
+                    <input type="password" required placeholder="••••••••" class="w-full bg-slate-900/80 border border-white/15 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-purple-500">
+                </div>
+                <button type="submit" class="glow-btn w-full py-3 rounded-xl font-bold text-white text-sm mt-2">
+                    دخول إلى منصة كترا
+                </button>
+            </form>
+
+            <!-- Sign Up Form (Hidden by default) -->
+            <form id="signupForm" onsubmit="handleAuthSubmit(event, 'signup')" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">الاسم الكامل</label>
+                    <input type="text" id="signupName" required placeholder="المعنى في فضاء رقمي" class="w-full bg-slate-900/80 border border-white/15 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">البريد الإلكتروني</label>
+                    <input type="email" required placeholder="name@example.com" class="w-full bg-slate-900/80 border border-white/15 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">كلمة المرور</label>
+                    <input type="password" required placeholder="••••••••" class="w-full bg-slate-900/80 border border-white/15 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-purple-500">
+                </div>
+                <button type="submit" class="glow-btn w-full py-3 rounded-xl font-bold text-white text-sm mt-2">
+                    إنشاء حساب جديد
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-6 left-6 z-50 flex items-center gap-3 bg-purple-900/90 border border-purple-400/40 text-white px-5 py-3.5 rounded-2xl shadow-2xl backdrop-blur-md transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-purple-300 text-lg"></i>
+        <span id="toast-message" class="text-sm font-semibold">تمت العملية بنجاح!</span>
+    </div>
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        // Initial Quotes Data Store
+        let quotesData = [
+            {
+                id: 1,
+                text: "خلف كل زر يضغط عليه المستخدم، تدور معركة صامتة بين المنطق والتعقيد، يسهر عليها مهندس لم ينم ليجعل التجربة تبدو سحرية.",
+                author: "كتاب: خلف الأزرار",
+                category: "behind_the_buttons",
+                likes: 58,
+                liked: true,
+                date: "جديد 📖"
+            },
+            {
+                id: 2,
+                text: "الأمن السيبراني ليس جداراً خرسانياً، بل هو وعي متجدد وقدرة على فهم السلوك البشري قبل الحزمة البرمجية.",
+                author: "كتاب: خلف الأزرار",
+                category: "behind_the_buttons",
+                likes: 44,
+                liked: false,
+                date: "جديد 📖"
+            },
+            {
+                id: 3,
+                text: "في الفضاء الرقمي، المعنى ليس مجرد بيانات مخزنة، بل هو الأثر الحقيقي الذي يتركه الفكر بين السطور والأكواد.",
+                author: "المعنى في فضاء رقمي",
+                category: "behind_the_buttons",
+                likes: 67,
+                liked: true,
+                date: "قبل 30 دقيقة"
+            },
+            {
+                id: 4,
+                text: "وما المرء إلا الأثر الذي يتركه، والكلام الذي ينسجه في أفئدة الآخرين قبل أن يرحل.",
+                author: "أدب عربي قديم",
+                category: "literature",
+                likes: 31,
+                liked: false,
+                date: "قبل ساعتين"
+            },
+            {
+                id: 5,
+                text: "في زحمة هذا العالم، ابحث عن المساحات التي تعيد ترتيب روحك، تماماً كما يرتب الشاعر أبياته.",
+                author: "كتابات أدبية عامة",
+                category: "literature",
+                likes: 29,
+                liked: false,
+                date: "قبل 4 ساعات"
+            },
+            {
+                id: 6,
+                text: "البرمجة هي فن تحويل الأفكار المعقدة إلى واقع رقمي ينبض بالحياة.",
+                author: "المعنى في فضاء رقمي",
+                category: "tech",
+                likes: 35,
+                liked: false,
+                date: "يوم أمس"
+            }
+        ];
+
+        let currentCategoryFilter = 'all';
+        let isLoggedIn = true;
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            renderQuotes();
+            updateAuthUI();
+        });
+
+        // Render Quotes to Grid
+        function renderQuotes() {
+            const grid = document.getElementById('quotes-grid');
+            const emptyState = document.getElementById('empty-state');
+            grid.innerHTML = '';
+
+            const filtered = currentCategoryFilter === 'all' 
+                ? quotesData 
+                : quotesData.filter(q => q.category === currentCategoryFilter);
+
+            document.getElementById('total-quotes-count').innerText = quotesData.length;
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            filtered.forEach((q, idx) => {
+                const card = document.createElement('div');
+                card.className = `glass-card rounded-2xl p-6 flex flex-col justify-between animate-fade-in`;
+                card.style.animationDelay = `${idx * 0.05}s`;
+
+                const categoryBadge = getCategoryBadge(q.category);
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            ${categoryBadge}
+                            <span class="text-xs text-gray-400 font-light">${q.date}</span>
+                        </div>
+                        <p class="text-white text-base sm:text-lg font-semibold leading-relaxed mb-6">
+                            "${q.text}"
+                        </p>
+                    </div>
+
+                    <div>
+                        <div class="text-xs text-purple-300 font-medium mb-4 flex items-center gap-1.5">
+                            <i class="fa-solid fa-feather text-purple-400"></i> ${q.author || 'المعنى في فضاء رقمي'}
+                        </div>
+                        <div class="flex items-center justify-between pt-3 border-t border-white/10">
+                            <button onclick="toggleLike(${q.id})" class="flex items-center gap-2 text-sm ${q.liked ? 'text-rose-500 font-bold' : 'text-gray-400 hover:text-rose-400'} transition-colors">
+                                <i class="${q.liked ? 'fa-solid' : 'fa-regular'} fa-heart text-base"></i>
+                                <span>${q.likes}</span>
+                            </button>
+                            
+                            <button onclick="copyQuote('${escapeHtml(q.text)}')" class="text-gray-400 hover:text-purple-300 text-sm flex items-center gap-1.5 transition-colors">
+                                <i class="fa-regular fa-copy"></i> نسخ
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Category Badge Helper
+        function getCategoryBadge(cat) {
+            switch(cat) {
+                case 'behind_the_buttons': return `<span class="bg-gradient-to-r from-purple-600/30 to-indigo-600/30 border border-purple-400/50 text-purple-200 text-xs px-3 py-1 rounded-full font-bold shadow-sm">📖 خلف الأزرار</span>`;
+                case 'literature': return `<span class="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs px-2.5 py-1 rounded-full font-semibold">📜 أدب عام</span>`;
+                case 'tech': return `<span class="bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs px-2.5 py-1 rounded-full font-semibold">💻 تقنية</span>`;
+                default: return `<span class="bg-gray-500/10 border border-gray-500/30 text-gray-300 text-xs px-2.5 py-1 rounded-full">عام</span>`;
+            }
+        }
+
+        // Toggle Like Button
+        function toggleLike(id) {
+            const quote = quotesData.find(q => q.id === id);
+            if (quote) {
+                quote.liked = !quote.liked;
+                quote.likes += quote.liked ? 1 : -1;
+                renderQuotes();
+                showToast(quote.liked ? 'تمت إضافة الاقتباس للإعجابات!' : 'تم إلغاء الإعجاب');
+            }
+        }
+
+        // Handle Add Quote Form Submit
+        function handleQuoteSubmit(e) {
+            e.preventDefault();
+            const text = document.getElementById('quoteText').value.trim();
+            const author = document.getElementById('quoteAuthor').value.trim() || 'المعنى في فضاء رقمي';
+            const category = document.getElementById('quoteCategory').value;
+
+            if (!text) return;
+
+            const newQuote = {
+                id: Date.now(),
+                text: text,
+                author: author,
+                category: category,
+                likes: 1,
+                liked: true,
+                date: "الآن"
+            };
+
+            quotesData.unshift(newQuote);
+            renderQuotes();
+            closeModal('addQuoteModal');
+            document.getElementById('addQuoteForm').reset();
+            showToast('تم إضافة الاقتباس بنجاح إلى منصة كترا! ✨');
+        }
+
+        // Category Filter Function
+        function filterCategory(cat, btnElement) {
+            currentCategoryFilter = cat;
+            document.querySelectorAll('.category-btn').forEach(b => {
+                b.classList.remove('bg-purple-600', 'text-white', 'active');
+                b.classList.add('bg-white/5', 'text-gray-300');
+            });
+
+            btnElement.classList.remove('bg-white/5', 'text-gray-300');
+            btnElement.classList.add('bg-purple-600', 'text-white', 'active');
+            renderQuotes();
+        }
+
+        // Filter Quotes Shortcut
+        function filterQuotes(type) {
+            filterCategory('all', document.querySelector('.category-btn'));
+        }
+
+        // Switch Tabs Sim
+        function switchTab(tabName) {
+            if (tabName === 'home' || tabName === 'explore') {
+                filterCategory('all', document.querySelector('.category-btn'));
+                showToast('أهلاً بك في منصة كترا الرقمية ✨');
+            }
+        }
+
+        // Copy Quote Helper
+        function copyQuote(text) {
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            showToast('تم نسخ الاقتباس للحافظة بنجاح 📋');
+        }
+
+        // Escape HTML Helper
+        function escapeHtml(text) {
+            return text.replace(/'/g, "\\'");
+        }
+
+        // Toast Feedback System
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = message;
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        // Modal Controls
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                const card = modal.firstElementChild;
+                if(card) card.classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            const card = modal.firstElementChild;
+            if(card) card.classList.add('scale-95');
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // Auth Controls Simulation
+        function openAuthModal(type) {
+            switchAuthTab(type);
+            openModal('authModal');
+        }
+
+        function switchAuthTab(type) {
+            const loginBtn = document.getElementById('auth-tab-login');
+            const signupBtn = document.getElementById('auth-tab-signup');
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+
+            if(type === 'login') {
+                loginBtn.className = 'text-lg font-bold text-purple-400 border-b-2 border-purple-500 pb-1 transition-all';
+                signupBtn.className = 'text-lg font-bold text-gray-400 hover:text-white pb-1 transition-all';
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+            } else {
+                signupBtn.className = 'text-lg font-bold text-purple-400 border-b-2 border-purple-500 pb-1 transition-all';
+                loginBtn.className = 'text-lg font-bold text-gray-400 hover:text-white pb-1 transition-all';
+                signupForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+            }
+        }
+
+        function handleAuthSubmit(e, type) {
+            e.preventDefault();
+            toggleUserAuth(true);
+            closeModal('authModal');
+            showToast(type === 'login' ? 'أهلاً بك: المعنى في فضاء رقمي ✨' : 'تم إنشاء الحساب بنجاح في كترا!');
+        }
+
+        function toggleUserAuth(state) {
+            isLoggedIn = state;
+            updateAuthUI();
+        }
+
+        function updateAuthUI() {
+            const guestNav = document.getElementById('guest-nav-controls');
+            const userNav = document.getElementById('user-nav-controls');
+
+            if(isLoggedIn) {
+                guestNav.classList.add('hidden');
+                userNav.classList.remove('hidden');
+                userNav.classList.add('flex');
+            } else {
+                guestNav.classList.remove('hidden');
+                userNav.classList.add('hidden');
+                userNav.classList.remove('flex');
+            }
+        }
+    </script>
+</body>
+</html>
